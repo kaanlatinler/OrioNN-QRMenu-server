@@ -12,6 +12,7 @@ module.exports = {
     database: process.env.DEV_DB_NAME,
     password: process.env.DEV_DB_PASSWORD,
     host: process.env.DEV_DB_HOST,
+    port: process.env.DEV_DB_PORT,
   },
   mail: {
     user: process.env.MAIL_USER,
