@@ -1,5 +1,4 @@
 const express = require("express");
-
 const path = require("path");
 
 const app = express();
@@ -9,22 +8,48 @@ const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
 
+// Import routes
+const routes = require("./routes");
+
+// Middleware
 app.use(cors());
-app.use(morgan("dev"));
 app.use(helmet());
+app.use(morgan("combined"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const visitorRoutes = require("./routes/VisitorRoutes");
-const videoRoutes = require("./routes/VideoRoutes");
 
-// Statik dosyaları sun
-app.use(express.static(path.join(__dirname, "public")));
+// Serve static files from uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// Video indirme endpoint’i
+// Initialize models
+require("./models");
 
-app.use("/api/videos", videoRoutes);
-app.use("/api/visitors", visitorRoutes);
+// Mount routes
+app.use("/", routes);
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global error handler:", err);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
+
+// 404 handler
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
 
 app.listen(port, () => {
-  console.log(`Server çalışıyor: http://localhost:${port}`);
+  console.log(`Server running on => http://localhost:${port}`);
+  console.log(`API Documentation: http://localhost:${port}/api/v1`);
 });
+
+module.exports = app;

@@ -16,7 +16,7 @@
     "winston": "^3.17.0",
     "ytdl-core": "npm:@distube/ytdl-core@^4.16.8"
   },
-  "name": "express-template",
+  "name": "orionn-qrmenu-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
