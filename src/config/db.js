@@ -9,7 +9,6 @@ const sequelize = new Sequelize(
   {
     host: config.host,
     dialect: "mysql",
-    port: 43423,
   }
 );
 
