@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.TEXT,
       },
+      price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0.0,
+      },
       image: {
         type: DataTypes.STRING,
       },
@@ -27,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
       isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
+      },
+      viewCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
       },
     },
     {
@@ -45,9 +54,11 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   // Instance method to get translated content
-  Product.prototype.getTranslatedContent = function(language = 'tr') {
+  Product.prototype.getTranslatedContent = function (language = "tr") {
     if (this.translations && this.translations.length > 0) {
-      const translation = this.translations.find(t => t.language === language);
+      const translation = this.translations.find(
+        (t) => t.language === language
+      );
       if (translation) {
         return {
           title: translation.title,

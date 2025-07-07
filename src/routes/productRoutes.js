@@ -9,6 +9,7 @@ const {
   deactivateProduct,
   activateProduct,
   getProductsByCategory,
+  incrementProductView,
 } = require("../controllers/productController");
 const {
   handleValidationErrors,
@@ -31,6 +32,9 @@ const validateCreateProduct = [
     .optional()
     .isLength({ max: 1000 })
     .withMessage("Description must not exceed 1000 characters"),
+  body("price")
+    .isFloat({ min: 0 })
+    .withMessage("Price must be a non-negative number"),
   body("categoryId")
     .optional()
     .isInt({ min: 1 })
@@ -49,6 +53,10 @@ const validateUpdateProduct = [
     .optional()
     .isLength({ max: 1000 })
     .withMessage("Description must not exceed 1000 characters"),
+  body("price")
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage("Price must be a non-negative number"),
   body("categoryId")
     .optional()
     .isInt({ min: 1 })
@@ -150,6 +158,9 @@ router.patch(
   validateProductId,
   activateProduct
 );
+
+// Increment product view count (public route)
+router.patch("/:id/view", validateProductId, incrementProductView);
 
 // Category-specific routes
 router.get(

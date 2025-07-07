@@ -141,6 +141,11 @@ const formatCategoryWithTranslations = (category, language = "tr") => {
     createdAt: category.createdAt,
     updatedAt: category.updatedAt,
     translations: category.translations || [],
+    Products: category.Products
+      ? category.Products.map((product) =>
+          formatProductWithTranslations(product, language)
+        )
+      : [],
   };
 };
 
@@ -152,9 +157,11 @@ const formatProductWithTranslations = (product, language = "tr") => {
     id: product.id,
     title: translatedContent.title,
     description: translatedContent.description,
+    price: product.price,
     image: product.image,
     categoryId: product.categoryId,
     isActive: product.isActive,
+    viewCount: product.viewCount || 0,
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
     translations: product.translations || [],

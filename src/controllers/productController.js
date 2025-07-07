@@ -7,7 +7,8 @@ const {
 // Create new product
 const createProduct = async (req, res) => {
   try {
-    const { title, description, categoryId, translations } = req.body;
+    const { title, description, price, categoryId } = req.body;
+    let translations = req.body.translations;
     let image = null;
 
     // Handle file upload
@@ -16,11 +17,29 @@ const createProduct = async (req, res) => {
       image = `/uploads/${req.file.filename}`;
     }
 
+    // Parse translations if it's a JSON string
+    if (translations && typeof translations === "string") {
+      try {
+        translations = JSON.parse(translations);
+      } catch (parseError) {
+        console.error("Error parsing translations JSON:", parseError);
+        translations = null;
+      }
+    }
+
     // Validate required fields
     if (!title) {
       return res.status(400).json({
         success: false,
         message: "Title is required",
+      });
+    }
+
+    // Validate price
+    if (price === undefined || price === null || price < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Price is required and must be non-negative",
       });
     }
 
@@ -45,6 +64,7 @@ const createProduct = async (req, res) => {
     const product = await Product.create({
       title,
       description,
+      price: parseFloat(price),
       image,
       categoryId,
     });
@@ -232,7 +252,8 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, categoryId, isActive, translations } = req.body;
+    const { title, description, price, categoryId, isActive } = req.body;
+    let translations = req.body.translations;
     let image = undefined;
 
     // Handle file upload
@@ -241,12 +262,30 @@ const updateProduct = async (req, res) => {
       image = `/uploads/${req.file.filename}`;
     }
 
+    // Parse translations if it's a JSON string
+    if (translations && typeof translations === "string") {
+      try {
+        translations = JSON.parse(translations);
+      } catch (parseError) {
+        console.error("Error parsing translations JSON:", parseError);
+        translations = null;
+      }
+    }
+
     // Find product
     const product = await Product.findByPk(id);
     if (!product) {
       return res.status(404).json({
         success: false,
         message: "Product not found",
+      });
+    }
+
+    // Validate price if provided
+    if (price !== undefined && price !== null && price < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Price must be non-negative",
       });
     }
 
@@ -269,11 +308,12 @@ const updateProduct = async (req, res) => {
 
     // Update product
     await product.update({
-      title: title || product.title,
+      title: title !== undefined ? title : product.title,
       description:
         description !== undefined ? description : product.description,
+      price: price !== undefined ? parseFloat(price) : product.price,
       image: image !== undefined ? image : product.image,
-      categoryId: categoryId || product.categoryId,
+      categoryId: categoryId !== undefined ? categoryId : product.categoryId,
       isActive: isActive !== undefined ? isActive : product.isActive,
     });
 
@@ -484,6 +524,41 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
+// Increment product view count
+const incrementProductView = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find product
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // Increment view count
+    await product.increment("viewCount");
+
+    res.status(200).json({
+      success: true,
+      message: "View count incremented successfully",
+      data: {
+        productId: product.id,
+        viewCount: product.viewCount + 1,
+      },
+    });
+  } catch (error) {
+    console.error("Increment product view error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -493,4 +568,5 @@ module.exports = {
   deactivateProduct,
   activateProduct,
   getProductsByCategory,
+  incrementProductView,
 };

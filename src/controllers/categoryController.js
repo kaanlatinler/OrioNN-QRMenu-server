@@ -7,13 +7,24 @@ const {
 // Create new category
 const createCategory = async (req, res) => {
   try {
-    const { title, description, translations } = req.body;
+    const { title, description } = req.body;
+    let translations = req.body.translations;
     let image = null;
 
     // Handle file upload
     if (req.file) {
       // Generate URL pointing to client's public folder
       image = `/uploads/${req.file.filename}`;
+    }
+
+    // Parse translations if it's a JSON string
+    if (translations && typeof translations === "string") {
+      try {
+        translations = JSON.parse(translations);
+      } catch (parseError) {
+        console.error("Error parsing translations JSON:", parseError);
+        translations = null;
+      }
     }
 
     // Validate required fields
@@ -104,6 +115,12 @@ const getAllCategories = async (req, res) => {
           attributes: ["id", "title", "isActive"],
           where: { isActive: true },
           required: false,
+          include: [
+            {
+              model: require("../models").ProductTranslation,
+              as: "translations",
+            },
+          ],
         },
         {
           model: CategoryTranslation,
@@ -155,6 +172,12 @@ const getCategoryById = async (req, res) => {
           as: "Products",
           where: { isActive: true },
           required: false,
+          include: [
+            {
+              model: require("../models").ProductTranslation,
+              as: "translations",
+            },
+          ],
         },
         {
           model: CategoryTranslation,
@@ -199,6 +222,22 @@ const getCategoryByTitle = async (req, res) => {
           as: "Products",
           where: { isActive: true },
           required: false,
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "price",
+            "image",
+            "isActive",
+            "createdAt",
+            "updatedAt",
+          ],
+          include: [
+            {
+              model: require("../models").ProductTranslation,
+              as: "translations",
+            },
+          ],
         },
         {
           model: CategoryTranslation,
@@ -233,13 +272,24 @@ const getCategoryByTitle = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, isActive, translations } = req.body;
+    const { title, description, isActive } = req.body;
+    let translations = req.body.translations;
     let image = undefined;
 
     // Handle file upload
     if (req.file) {
       // Generate URL pointing to client's public folder
       image = `/uploads/${req.file.filename}`;
+    }
+
+    // Parse translations if it's a JSON string
+    if (translations && typeof translations === "string") {
+      try {
+        translations = JSON.parse(translations);
+      } catch (parseError) {
+        console.error("Error parsing translations JSON:", parseError);
+        translations = null;
+      }
     }
 
     // Find category
