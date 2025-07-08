@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
+      tableName: "users", // Explicitly set table name to lowercase
       timestamps: true,
     }
   );

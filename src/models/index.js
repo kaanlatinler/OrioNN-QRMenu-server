@@ -27,6 +27,7 @@ Object.values(models)
   .filter((model) => typeof model.associate === "function")
   .forEach((model) => model.associate(models));
 
+// Normal sync - use reset-database.js script for complete database reset
 sequelize.sync();
 
 module.exports = {

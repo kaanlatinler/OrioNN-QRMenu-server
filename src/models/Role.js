@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
+      tableName: "roles", // Explicitly set table name to lowercase
       timestamps: true,
     }
   );

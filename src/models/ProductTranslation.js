@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "Products",
+          model: "products", // Use lowercase table name
           key: "id",
         },
       },
@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
+      tableName: "producttranslations", // Explicitly set table name to lowercase
       timestamps: true,
       indexes: [
         {
